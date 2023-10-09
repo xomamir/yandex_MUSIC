@@ -27,18 +27,6 @@ class AudioFileType(models.Model):
         return f'Расширение: {self.name}'
 
 
-class Country(models.Model):
-    title = models.CharField(
-        verbose_name='название',
-        max_length=50
-    )
-
-    class Meta:
-        verbose_name = 'страна'
-        verbose_name_plural = 'страны'
-
-    def __str__(self):
-        return self.title
 
 
 class Band(AbsctractDateTime):
@@ -50,10 +38,10 @@ class Band(AbsctractDateTime):
         verbose_name='фоловеры',
         default=0
     )
-    country = models.ForeignKey(
-        to=Country,
-        on_delete=models.PROTECT,
-        verbose_name='страна'
+    country = models.CharField(
+        verbose_name='страна',
+        max_length=50
+
     )
 
     class Meta:

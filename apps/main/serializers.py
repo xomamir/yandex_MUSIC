@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from main.models import Genre
+from main.models import Genre,Band
 
 class GenreSerializer(serializers.Serializer):
     id = serializers.IntegerField()
