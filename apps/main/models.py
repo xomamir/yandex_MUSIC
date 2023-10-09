@@ -10,33 +10,11 @@ from abstracts.utils import normalize_time
 
 
 
-class AudioFileType(models.Model):
-    """
-    Модель для хранения типов расширений аудио-файлов.
-    """
-    name: models.CharField = models.CharField(
-        verbose_name='название',
-        max_length=10
-    )
 
-    class Meta:
-        verbose_name = 'тип расширения аудио-файла'
-        verbose_name_plural = 'типы расширений аудио-файлов'
-
-    def __str__(self):
-        return f'Расширение: {self.name}'
-
-
-
-
-class Band(AbsctractDateTime):
+class Band(models.Model):
     title = models.CharField(
         verbose_name='название',
         max_length=50
-    )
-    followers = models.PositiveIntegerField(
-        verbose_name='фоловеры',
-        default=0
     )
     country = models.CharField(
         verbose_name='страна',
@@ -55,18 +33,11 @@ class Band(AbsctractDateTime):
         return f'Группа: {self.title}'
 
 
-class Artist(AbsctractDateTime):
+class Artist(models.Model):
     """
     Artist model.
     """
-    GENDER_OTHER = 0
-    GENDER_FEMALE = 1
-    GENDER_MALE = 2
-    GENDERS = (
-        (GENDER_OTHER, 'Остальное'),
-        (GENDER_FEMALE, 'Женщина'),
-        (GENDER_MALE, 'Мужчина')
-    )
+
     band = models.ForeignKey(
         to=Band,
         on_delete=models.PROTECT,
@@ -74,23 +45,13 @@ class Artist(AbsctractDateTime):
         null=True,
         blank=True
     )
-    user = models.OneToOneField(
-        to=User,
-        on_delete=models.PROTECT,
-        verbose_name='пользователь',
-        null=True,
-        blank=True
-    )
+
     nickname = models.CharField(
         verbose_name='псевдоним',
         default='',
         max_length=50
     )
-    gender = models.PositiveSmallIntegerField(
-        choices=GENDERS,
-        verbose_name='гендер',
-        default=GENDER_OTHER
-    )
+
 
     class Meta:
         ordering = ('id',)
@@ -126,16 +87,7 @@ class Album(models.Model):
     """
     Album model.
     """
-    REGULAR = 0
-    SILVER = 1
-    GOLD = 2
-    PLATINUM = 3
-    STATUSES = (
-        (REGULAR, 'Обычный'),
-        (SILVER, 'Серебряный'),
-        (GOLD, 'Золотой'),
-        (PLATINUM, 'Платиновый'),
-    )
+
     band = models.ForeignKey(
         to=Band,
         on_delete=models.PROTECT,
@@ -145,33 +97,21 @@ class Album(models.Model):
         verbose_name='название альбома',
         max_length=150
     )
-    release_date = models.DateTimeField(
-        verbose_name='дата релиза',
-    )
+
     logo = models.ImageField(
         verbose_name='логотип',
-        upload_to='album_covers/%Y/',
-        default='media/default_cover.png',
         null=True,
         blank=True
     )
-    status = models.SmallIntegerField(
-        choices=STATUSES,
-        default=REGULAR,
-        verbose_name='статус'
-    )
-    is_deleted = models.BooleanField(
-        verbose_name='удален',
-        default=False
-    )
+
+
     objects = AlbumManager()
 
     def __str__(self) -> str:
-        return f'{self.band}: {self.title} ({self.status})'
+        return f'{self.band}: {self.title} '
 
 
     class Meta:
-        ordering = ('release_date',)
         verbose_name = 'альбом'
         verbose_name_plural = 'альбомы'
 
@@ -220,11 +160,6 @@ class Song(models.Model):
         verbose_name='жанр'
     )
 
-    times_played = models.PositiveIntegerField(
-        verbose_name='количество прослушиваний',
-        null=True,
-        blank=True
-    )
     is_favorite = models.BooleanField(
         verbose_name='избранное',
         default=False
