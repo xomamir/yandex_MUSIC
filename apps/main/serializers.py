@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from main.models import Genre,Band,Artist
+from main.models import Genre,Band,Artist,Album,Song
 
 class GenreSerializer(serializers.Serializer):
     id = serializers.IntegerField()
@@ -34,4 +34,35 @@ class ArtistCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Artist
         fields = ['nickname','band']
+
+
+
+class AlbumSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    title = serializers.CharField()
+    band = BandSerializer()
+    logo = serializers.FileField()
+
+class AlbumCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Album
+        fields = ['title','band','logo']
+
+
+
+
+class SongSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    title = serializers.CharField()
+    album = AlbumSerializer()
+    audio_file = serializers.FileField()
+    duration = serializers.IntegerField()
+    genre = GenreSerializer(many=True)
+    is_favorite = serializers.BooleanField()
+
+
+class SongCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Song
+        fields = ['title','album','audio_file','duration','genre','is_favorite']
 

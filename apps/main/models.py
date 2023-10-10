@@ -100,6 +100,7 @@ class Album(models.Model):
 
     logo = models.ImageField(
         verbose_name='логотип',
+        upload_to='posters',
         null=True,
         blank=True
     )
@@ -130,7 +131,7 @@ class Genre(models.Model):
     class Meta:
         verbose_name = 'жанр'
         verbose_name_plural = 'жанры'
-        ordering = ('-id',)
+        ordering = ('-id',) 
 
 
 class Song(models.Model):
@@ -152,8 +153,7 @@ class Song(models.Model):
     )
     duration = models.PositiveSmallIntegerField(
         verbose_name='длительность трека',
-        null=True,
-        blank=True
+        default=False
     )
     genre = models.ManyToManyField(
         to=Genre,

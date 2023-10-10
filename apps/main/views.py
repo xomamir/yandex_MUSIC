@@ -2,14 +2,18 @@ from django.shortcuts import render
 from rest_framework import viewsets
 from rest_framework.request import Request
 from rest_framework.response import Response
-from main.models import Genre,Band,Artist
+from main.models import Genre,Band,Artist,Album,Song
 from main.serializers import (
     GenreSerializer,
     GenreCreateSerializer,
     BandSerializer,
     BandCreateSerializer,
     ArtistSerializer,
-    ArtistCreateSerializer)
+    ArtistCreateSerializer,
+    AlbumSerializer,
+    AlbumCreateSerializer,
+    SongSerializer,
+    SongCreateSerializer)
 from rest_framework.validators import ValidationError
 from rest_framework import filters, generics
 
@@ -27,48 +31,99 @@ class GenreViewSet(viewsets.ViewSet):
     queryset = Genre.objects.all()
 
     def list(
-            self,
-            request: Request,
-            *args: tuple,
-            **kwargs: dict
+        self,
+        request: Request,
+        *args: tuple,
+        **kwargs: dict
     ) -> Response:
-        serializer = GenreSerializer(
-            instance=self.queryset, many= True
+        serializer: GenreSerializer = GenreSerializer(
+            instance=self.queryset, many=True
         )
         return Response(
             data=serializer.data
         )
-        
+    
     def retrieve(
-            self,
-            request: Request,
-            pk: int = None
+        self, 
+        request: Request, 
+        pk: int = None
     ) -> Response:
         try:
             genre = self.queryset.get(id=pk)
         except Genre.DoesNotExist:
-            raise ValidationError('Object not found', code = 404)
-        serialazer = GenreSerializer(
-            instance=genre
-        )
-        return Response(
-            data=serialazer.data
-        )
+            raise ValidationError('Object not found!', code=404)
+        
+        serializer = GenreSerializer(instance=genre)
+        return Response(data=serializer.data)
     
     def create(
-            self,
-            request: Request,
-            *args: tuple,
-            **kwargs: dict
+        self,
+        request: Request,
+        *args: tuple,
+        **kwargs: dict
     ) -> Response:
-
         serializer = GenreCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        genre: Genre = serializer.save()
+        song: Genre = serializer.save()
         return Response(
             data={
-                'status': 'ok',
-                'message': f'Genre{Genre.title} is create! Id:{genre.pk}'
+                "status": "ok",
+                "message": f"Genre {Genre.title} is create! Id: {song.pk}"
+            }
+        )
+    
+    def destroy(
+        self,
+        request: Request,
+        pk: str
+    ) -> Response:
+        """Удаление игры."""
+
+        try:
+            genre = self.queryset.get(id=pk)
+        except Genre.DoesNotExist:
+            raise ValidationError('Такой Игры нет', code=400)
+        else:
+            name: str = genre.title
+            genre.delete()
+
+        return Response(
+            data={
+                'status': 'OK',
+                'message': f'Genre {name} is deleted!'
+            }
+        )
+    
+
+    def update(
+        self,
+        request: Request,
+        pk: str
+    ) -> Response:
+        """Обновление игры."""
+
+        try:
+            genre = self.queryset.get(id=pk)
+        except Genre.DoesNotExist:
+            raise ValidationError('Genre not found', code=400)
+
+        serializer: GenreSerializer = \
+            GenreSerializer(
+                instance=genre,
+                data=request.data
+            )
+        if not serializer.is_valid():
+            return Response(
+                data={
+                    'status': 'Warning',
+                    'message': f'Warning with: {genre.title}'
+                }
+            )
+        serializer.save()
+        return Response(
+            data={
+                'status': 'OK',
+                'message': f'Genre: {genre.title} was updated'
             }
         )
     
@@ -273,5 +328,211 @@ class ArtistViewSet(viewsets.ViewSet):
             data={
                 'status': 'OK',
                 'message': f'Artist: {artist.title} was updated'
+            }
+        )
+    
+
+class AlbumViewSet(viewsets.ViewSet):
+    """ViewSet for Game model."""
+
+    queryset = Album.objects.all()
+
+    def list(
+        self,
+        request: Request,
+        *args: tuple,
+        **kwargs: dict
+    ) -> Response:
+        serializer: AlbumSerializer = AlbumSerializer(
+            instance=self.queryset, many=True
+        )
+        return Response(
+            data=serializer.data
+        )
+    
+    def retrieve(
+        self, 
+        request: Request, 
+        pk: int = None
+    ) -> Response:
+        try:
+            album = self.queryset.get(pk=pk)
+        except Album.DoesNotExist:
+            raise ValidationError('Object not found!', code=404)
+        
+        serializer = AlbumSerializer(instance=album)
+        return Response(data=serializer.data)
+    
+    def create(
+        self,
+        request: Request,
+        *args: tuple,
+        **kwargs: dict
+    ) -> Response:
+        serializer = AlbumCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        album: Album = serializer.save()
+        return Response(
+            data={
+                "status": "ok",
+                "message": f"Album {Album.title} is create! Id: {album.pk}"
+            }
+        )
+    
+    def destroy(
+        self,
+        request: Request,
+        pk: str
+    ) -> Response:
+        """Удаление игры."""
+
+        try:
+            album = self.queryset.get(id=pk)
+        except Album.DoesNotExist:
+            raise ValidationError('Такой Игры нет', code=400)
+        else:
+            name: str = album.title
+            album.delete()
+
+        return Response(
+            data={
+                'status': 'OK',
+                'message': f'Album {name} is deleted!'
+            }
+        )
+    
+
+    def update(
+        self,
+        request: Request,
+        pk: str
+    ) -> Response:
+        """Обновление игры."""
+
+        try:
+            album = self.queryset.get(id=pk)
+        except Album.DoesNotExist:
+            raise ValidationError('Game not found', code=400)
+
+        serializer: AlbumSerializer = \
+            AlbumSerializer(
+                instance=album,
+                data=request.data
+            )
+        if not serializer.is_valid():
+            return Response(
+                data={
+                    'status': 'Warning',
+                    'message': f'Warning with: {album.title}'
+                }
+            )
+        serializer.save()
+        return Response(
+            data={
+                'status': 'OK',
+                'message': f'Album: {album.title} was updated'
+            }
+        )
+    
+
+class SongViewSet(viewsets.ViewSet):
+    """ViewSet for Game model."""
+
+    queryset = Song.objects.all()
+
+    def list(
+        self,
+        request: Request,
+        *args: tuple,
+        **kwargs: dict
+    ) -> Response:
+        serializer: SongSerializer = SongSerializer(
+            instance=self.queryset, many=True
+        )
+        return Response(
+            data=serializer.data
+        )
+    
+    def retrieve(
+        self, 
+        request: Request, 
+        pk: int = None
+    ) -> Response:
+        try:
+            song = self.queryset.get(id=pk)
+        except Song.DoesNotExist:
+            raise ValidationError('Object not found!', code=404)
+        
+        serializer = SongSerializer(instance=song)
+        return Response(data=serializer.data)
+    
+    def create(
+        self,
+        request: Request,
+        *args: tuple,
+        **kwargs: dict
+    ) -> Response:
+        serializer = SongCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        song: Song = serializer.save()
+        return Response(
+            data={
+                "status": "ok",
+                "message": f"Song {Song.title} is create! Id: {song.pk}"
+            }
+        )
+    
+    def destroy(
+        self,
+        request: Request,
+        pk: str
+    ) -> Response:
+        """Удаление игры."""
+
+        try:
+            song = self.queryset.get(id=pk)
+        except Song.DoesNotExist:
+            raise ValidationError('Такой Игры нет', code=400)
+        else:
+            name: str = song.title
+            song.delete()
+
+        return Response(
+            data={
+                'status': 'OK',
+                'message': f'Song {name} is deleted!'
+            }
+        )
+    
+
+    def update(
+        self,
+        request: Request,
+        pk: str
+    ) -> Response:
+        """Обновление игры."""
+
+        try:
+            song = self.queryset.get(id=pk)
+        except Song.DoesNotExist:
+            raise ValidationError('Song not found', code=400)
+
+        serializer: SongSerializer = \
+            SongSerializer(
+                instance=song,
+                data=request.data
+            )
+        if not serializer.is_valid():
+            return Response(
+                data={
+                    'status': 'Warning',
+                    'message': f'Warning with: {song.title}'
+                }
+            )
+        serializer.save()
+        return Response(
+            data={
+                'status': 'OK',
+                'message': f'Song: {song.title} was updated'
             }
         )

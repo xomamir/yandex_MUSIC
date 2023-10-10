@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from main.views import GenreViewSet,BandViewSet,ArtistViewSet
+from main.views import GenreViewSet,BandViewSet,ArtistViewSet,AlbumViewSet,SongViewSet
 
 
 from rest_framework.routers import DefaultRouter
@@ -27,6 +27,8 @@ router = DefaultRouter()
 router.register(r'genre', GenreViewSet)
 router.register(r'band', BandViewSet)
 router.register(r'artist', ArtistViewSet)
+router.register(r'album', AlbumViewSet)
+router.register(r'song', SongViewSet)
 
 
 
